@@ -178,10 +178,11 @@ undum.game.situations = {
 			<p>Una vez en el patio te dispones a viajar al pasado al momento justo en que el maldito chino se comió el pangolín. </p>",
 			{
 				enter: function( character, system, from ) {
+					$('body').css('background-image', 'url(https://decortips.com/es/_next/image?url=https%3A%2F%2Fdecortips.com%2Fes%2Fwp-content%2Fuploads%2F2019%2F04%2Ftener-jardin-bonito.jpg&w=1920&q=75')
 					if( character.qualities.timemachine ) {
 						system.doLink( "patiotraseromaquina" );
 					} else {
-            $('body').css('background-image', 'url(https://bangbranding.com/blog/wp-content/uploads/2016/11/350x500_destacada-1.jpg')
+            $('body').css('background-image', 'url(https://decortips.com/es/_next/image?url=https%3A%2F%2Fdecortips.com%2Fes%2Fwp-content%2Fuploads%2F2019%2F04%2Ftener-jardin-bonito.jpg&w=1920&q=75')
 						system.write( "<p>y descubres que no has cogido la maquina del tiempo para viajar al pasado \
 										por lo que decides <a href='habitacion'>volver a por ella</a>. </p>"
 						
