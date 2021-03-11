@@ -4,7 +4,7 @@
 // define the content of the game.
 // ---------------------------------------------------------------------------
 
-(function($) {
+(function() {
     // -----------------------------------------------------------------------
     // Internal Infrastructure Implementations [NB: These have to be
     // at the top, because we use them below, but you can safely
@@ -40,18 +40,7 @@
     // Feature detection
 
     var hasLocalStorage = function() {
-        var hasStorage = false;
-        try {
-            hasStorage = ('localStorage' in window) &&
-                window.localStorage !== null &&
-                window.localStorage !== undefined;
-        }
-        catch (err) {
-            // Firefox with the "Always Ask" cookie accept setting
-            // will throw an error when attempting to access localStorage
-            hasStorage = false;
-        }
-        return hasStorage;
+        return ('localStorage' in window) && window.localStorage !== null;
     };
 
     var isMobileDevice = function() {
@@ -100,95 +89,22 @@
      * then they should have the same function signature as the full
      * function definitions, below.
      *
-     * Note that SimpleSituation, a derived type of Situation, calls
-     * passed in enter, act and exit functions AS WELL AS their normal
-     * action. This is most often what you want: the normal behavior
-     * plus a little extra custom behavior. If you want to override
-     * the behavior of a SimpleSituation, you'll have to create a
-     * derived type and set the enter, act and/or exit function on
-     * their prototypes. In most cases, however, if you want to do
-     * something completely different, it is better to derive your
-     * type from this type: Situation, rather than one of its
-     * children.
-     *
-     * In addition to enter, exit and act, the following options
-     * related to implicit situation selection are available:
-     *
-     * optionText: a string or a function(character, system,
-     *     situation) which should return the label to put in an
-     *     option block where a link to this situation can be
-     *     chosen. The situation passed in is the situation where the
-     *     option block is being displayed.
-     *
-     * canView: a function(character, system, situation) which should
-     *     return true if this situation should be visible in an
-     *     option block in the given situation.
-     *
-     * canChoose: a function(character, system, situation) which should
-     *     return true if this situation should appear clickable in an
-     *     option block. Returning false allows you to present the
-     *     option but prevent it being selected. You may want to
-     *     indicate to the player that they need to collect some
-     *     important object before the option is available, for
-     *     example.
-     *
-     * tags: a list of tags for this situation, which can be used for
-     *     implicit situation selection. The tags can also be given as
-     *     space, tab or comma separated tags in a string. Note that,
-     *     when calling `getSituationIdChoices`, tags are prefixed with
-     *     a hash, but that should not be the case here. Just use the
-     *     plain tag name.
-     *
-     * priority: a numeric priority value (default = 1). When
-     *     selecting situations implicitly, higher priority situations
-     *     are considered first.
-     *
-     * frequency: a numeric relative frequency (default = 1), so 100
-     *     would be 100 times more frequent. When there are more
-     *     options that can be displayed, situations will be selected
-     *     randomly based on their frequency.
-     *
-     * displayOrder: a numeric ordering value (default = 1). When
-     *     situations are selected implicitly, the results are ordered
-     *     by increasing displayOrder.
+     * Note that the derived types of Situation (current
+     * SimpleSituation), call passed in functions AS WELL AS their
+     * normal action. This is most often what you want: the normal
+     * behavior plus a little extra custom behavior. If you want to
+     * override the behavior of a SimpleSituation, you'll have to
+     * create a derived type and set the enter, act and/or exit
+     * function on their prototypes. In most cases, however, if you
+     * want to do something completely different, it is better to
+     * derive your type from this type: Situation, rather than one of
+     * its children.
      */
     var Situation = function(opts) {
         if (opts) {
             if (opts.enter) this._enter = opts.enter;
             if (opts.act) this._act = opts.act;
             if (opts.exit) this._exit = opts.exit;
-
-            // Options related to this situation being automatically
-            // selected and displayed in a list of options.
-            this._optionText = opts.optionText;
-            this._canView = opts.canView || true;
-            this._canChoose = opts.canChoose || true;
-            this._priority = (opts.priority !== undefined) ? opts.priority : 1;
-            this._frequency =
-                (opts.frequency !== undefined) ? opts.frequency : 1;
-            this._displayOrder =
-                (opts.displayOrder !== undefined) ? opts.displayOrder : 1;
-
-            // Tag are not stored with an underscore, because they are
-            // accessed directy. They should not be context sensitive
-            // (use the canView function to do context sensitive
-            // manipulation).
-            if (opts.tags !== undefined) {
-                if ($.isArray(opts.tags)) {
-                    this.tags = opts.tags;
-                } else {
-                    this.tags = opts.tags.split(/[ \t,]+/);
-                }
-            } else {
-                this.tags = [];
-            }
-        } else {
-            this._canView = true;
-            this._canChoose = true;
-            this._priority = 1;
-            this._frequency = 1;
-            this._displayOrder = 1;
-            this.tags = [];
         }
     };
     /* A function that takes action when we enter a situation. The
@@ -209,43 +125,6 @@
     Situation.prototype.exit = function(character, system, to) {
         if (this._exit) this._exit(character, system, to);
     };
-    /* Determines whether this situation should be contained within a
-     * list of options generated automatically by the given
-     * situation. */
-    Situation.prototype.canView = function(character, system, situation) {
-        if ($.isFunction(this._canView)) {
-            return this._canView(character, system, situation);
-        } else {
-            return this._canView;
-        }
-    };
-    /* Determines whether this situation should be clickable within a
-     * list of options generated automatically by the given situation. */
-    Situation.prototype.canChoose = function(character, system, situation) {
-        if ($.isFunction(this._canChoose)) {
-            return this._canChoose(character, system, situation);
-        } else {
-            return this._canChoose;
-        }
-    };
-    /* Returns the text that should be used to display this situation
-     * in an automatically generated list of choices. */
-    Situation.prototype.optionText = function(character, system, situation) {
-        if ($.isFunction(this._optionText)) {
-            return this._optionText(character, system, situation);
-        } else {
-            return this._optionText;
-        }
-    };
-    /* Returns the priority, frequency and displayOrder for this situation,
-     * when being selected using `system.getSituationIdChoices`. */
-    Situation.prototype.choiceData = function(character, system, situation) {
-        return {
-            priority: this._priority,
-            frequency: this._frequency,
-            displayOrder: this._displayOrder
-        };
-    };
 
     /* A simple situation has a block of content that it displays when
      * the situation is entered. The content must be valid "Display
@@ -255,10 +134,7 @@
      * heading: The optional `heading` will be used as a section title
      *     before the content is displayed. The heading can be any
      *     HTML string, it doesn't need to be "Display Content". If
-     *     the heading is not given, no heading will be displayed. If
-     *     a heading is given, and no optionText is specified (see
-     *     `Situation` for more information on `optionText`), then the
-     *     heading will also be used for the situation's option text.
+     *     the heading is not given, no heading will be displayed.
      *
      * actions: This should be an object mapping action Ids to a
      *     response. The response should either be "Display Content"
@@ -266,29 +142,7 @@
      *     function(character, system, action) that will process the
      *     action.
      *
-     * choices: A list of situation ids and tags that, if given, will
-     *     be used to compile an implicit option block using
-     *     `getSituationIdChoices` (see that function for more details
-     *     of how this works). Tags in this list should be prefixed
-     *     with a hash # symbol, to distinguish them from situation
-     *     ids. If just a single tag or id is needed, it can be passed
-     *     in as a string without wrapping into a list.
-     *
-     * minChoices: If `choices` is given, and an implicit choice block
-     *     should be compiled, set this option to require at least
-     *     this number of options to be displayed. See
-     *     `getSituationIdChoices` for a description of the algorithm by
-     *     which this happens. If you do not specify the `choices`
-     *     option, then this option will be ignored.
-     *
-     * maxChoices: If `choices` is given, and an implicit choice block
-     *     should be compiled, set this option to require no more than
-     *     this number of options to be displayed. See
-     *     `getSituationIdChoices` for a description of the algorithm
-     *     by which this happens. If you do not specify the `choices`
-     *     option, then this option will be ignored.
-     *
-     * The remaining options in the `opts` parameter are the same as for
+     * The remaining options in the opts parameter are the same as for
      * the base Situation.
      */
     var SimpleSituation = function(content, opts) {
@@ -296,10 +150,6 @@
         this.content = content;
         this.heading = opts && opts.heading;
         this.actions = opts && opts.actions;
-
-        this.choices = opts && opts.choices;
-        this.minChoices = opts && opts.minChoices;
-        this.maxChoices = opts && opts.maxChoices;
     };
     SimpleSituation.inherits(Situation);
     SimpleSituation.prototype.enter = function(character, system, from) {
@@ -310,7 +160,6 @@
                 system.writeHeading(this.heading);
             }
         }
-        if (this._enter) this._enter(character, system, from);
         if (this.content) {
             if ($.isFunction(this.content)) {
                 system.write(this.content());
@@ -318,12 +167,7 @@
                 system.write(this.content);
             }
         }
-        if (this.choices) {
-            var choices = system.getSituationIdChoices(this.choices,
-                                                       this.minChoices,
-                                                       this.maxChoices);
-            system.writeChoices(choices);
-        }
+        if (this._enter) this._enter(character, system, from);
     };
     SimpleSituation.prototype.act = function(character, system, action) {
         var response = this.actions[action];
@@ -333,15 +177,6 @@
             if (response) system.write(response);
         }
         if (this._act) this._act(character, system, action);
-    };
-    SimpleSituation.prototype.optionText = function(character, system, sitn) {
-        var parentResult = Situation.prototype.optionText.call(this, character,
-                                                               system, sitn);
-        if (parentResult === undefined) {
-            return this.heading;
-        } else {
-            return parentResult;
-        }
     };
 
     /* Instances of this class define the qualities that characters
@@ -412,7 +247,7 @@
     };
     NonZeroIntegerQuality.inherits(IntegerQuality);
     NonZeroIntegerQuality.prototype.format = function(character, value) {
-        if (value === 0) {
+        if (value == 0) {
             return null;
         } else {
             return IntegerQuality.prototype.format.call(
@@ -476,8 +311,7 @@
             val = this.values.length - 1;
         }
         if (!this.useBonuses) mod = "";
-        if (this.values[val] === null) return null;
-        return this.values[val] + mod; // Type coercion
+        return this.values[val] + mod;
     };
 
     /* A specialization of WordScaleQuality that uses the FUDGE RPG's
@@ -564,28 +398,7 @@
      */
     var System = function() {
         this.rnd = null;
-        this.options = {
-          all_links_once: true,
-          mobile_hide_speed: 500,
-          slide_up_speed: 500,
-          fade_speed: 1500,
-          progress_bar_speed: 1000
-        }
         this.time = 0;
-    };
-
-    /* Removes all content from the page, clearing the main content area.
-     *
-     * If an elementSelector is given, then only that selector will be
-     * cleared. Note that all content from the cleared element is removed,
-     * but the element itself remains, ready to be filled again using
-     * System.write.
-     */
-    System.prototype.clearContent = function(elementSelector) {
-        var $element;
-        if (elementSelector) $element = $(elementSelector);
-        if (!$element) $element = $("#content");
-        $element.empty();
     };
 
     /* Outputs regular content to the page. The content supplied must
@@ -608,18 +421,6 @@
         doWrite(content, elementSelector, 'append', 'after');
     };
 
-    /* Outputs the given content in a heading on the page. The content
-     * supplied must be valid "Display Content".
-     *
-     * The content goes to the end of the page, unless you supply the
-     * optional selector argument. If you do, the content appears
-     * after the element that matches that selector.
-     */
-    System.prototype.writeHeading = function(headingContent, elementSelector) {
-        var heading = $("<h1>").html(headingContent);
-        doWrite(heading, elementSelector, 'append', 'after');
-    };
-
     /* Outputs regular content to the page. The content supplied must
      * be valid "Display Content".
      *
@@ -629,33 +430,6 @@
      */
     System.prototype.writeBefore = function(content, elementSelector) {
         doWrite(content, elementSelector, 'prepend', 'before');
-    };
-
-    /* Outputs regular content to the page. The content supplied must
-     * be valid "Display Content".
-     *
-     * When a selector is not specified, this behaves identically to
-     * System.prototype.write. If you supply a selector, the content
-     * appears as a child node at the end of the content of the
-     * element that matches that selector.
-     */
-
-    System.prototype.writeInto = function(content, elementSelector) {
-        doWrite(content, elementSelector, 'append', 'append');
-    };
-
-    /* Replaces content with the content supplied, which must be valid
-     * "Display Content".
-     *
-     * When a selector is not specified, this replaces the entire
-     * content of the page. Otherwise, it replaces the element matched
-     * with the selector. This replaces the entire element, including
-     * the matched tags, so ideally the content supplied should fit
-     * in its place in the DOM with the same kind of display element.
-     */
-
-    System.prototype.replaceWith = function(content, elementSelector) {
-        doWrite(content, elementSelector, 'replaceWith', 'replaceWith');
     };
 
     /* Carries out the given situation change or action, as if it were
@@ -677,209 +451,6 @@
             var a = $(element);
             a.replaceWith($("<span>").addClass("ex_link").html(a.html()));
         });
-    };
-
-    /* Given a list of situation ids, this outputs a standard option
-     * block with the situation choices in the given order.
-     *
-     * The contents of each choice will be a link to the situation,
-     * the text of the link will be given by the situation's
-     * outputText property. Note that the canChoose function is
-     * called, and if it returns false, then the text will appear, but
-     * the link will not be clickable.
-     *
-     * Although canChoose is honored, canView and displayOrder are
-     * not. If you need to honor these, you should either do so
-     * manually, ot else use the `getSituationIdChoices` method to
-     * return an ordered list of valid viewable situation ids.
-     */
-    System.prototype.writeChoices = function(listOfIds, elementSelector) {
-        if (listOfIds.length === 0) return;
-
-        var currentSituation = getCurrentSituation();
-        var $options = $("<ul>").addClass("options");
-        for (var i = 0; i < listOfIds.length; ++i) {
-            var situationId = listOfIds[i];
-            var situation = game.situations[situationId];
-            assert(situation, "unknown_situation".l({id:situationId}));
-            if (situation == currentSituation)
-            {
-                continue;
-            }
-
-            var optionText = situation.optionText(character, this,
-                                                  currentSituation);
-            if (!optionText) optionText = "choice".l({number:i+1});
-            var $option = $("<li>");
-            var $a;
-            if (situation.canChoose(character, this, currentSituation)) {
-                $a = $("<a>").attr({href: situationId});
-            } else {
-                $a = $("<span>");
-            }
-            $a.text(optionText);
-            $option.html($a);
-            $options.append($option);
-        }
-        doWrite($options, elementSelector, 'append', 'after');
-    };
-
-    /* Returns a list of situation ids to choose from, given a set of
-     * specifications.
-     *
-     * This function is a complex and powerful way of compiling
-     * implicit situation choices. You give it a list of situation ids
-     * and situation tags (if a single id or tag is needed just that
-     * string can be given, it doesn't need to be wrapped in a
-     * list). Tags should be prefixed with a hash # to differentiate
-     * them from situation ids. The function then considers all
-     * matching situations in descending priority order, calling their
-     * canView functions and filtering out any that should not be
-     * shown, given the current state. Without additional parameters
-     * the function returns a list of the situation ids at the highest
-     * level of priority that has any valid results. So, for example,
-     * if a tag #places matches three situations, one with priority 2,
-     * and two with priority 3, and all of them can be viewed in the
-     * current context, then only the two with priority 3 will be
-     * returned. This allows you to have high-priority situations that
-     * trump any lower situations when they are valid, such as
-     * situations that force the player to go to one destination if
-     * the player is out of money, for example.
-     *
-     * If a minChoices value is given, then the function will attempt
-     * to return at least that many results. If not enough results are
-     * available at the highest priority, then lower priorities will
-     * be considered in turn, until enough situations are found. In
-     * the example above, if we had a minChoices of three, then all
-     * three situations would be returned, even though they have
-     * different priorities. If you need to return all valid
-     * situations, regardless of their priorities, set minChoices to a
-     * large number, such as `Number.MAX_VALUE`, and leave maxChoices
-     * undefined.
-     *
-     * If a maxChoices value is given, then the function will not
-     * return any more than the given number of results. If there are
-     * more than this number of results possible, then the highest
-     * priority resuls will be guaranteed to be returned, but the
-     * lowest priority group will have to fight it out for the
-     * remaining places. In this case, a random sample is chosen,
-     * taking into account the frequency of each situation. So a
-     * situation with a frequency of 100 will be chosen 100 times more
-     * often than a situation with a frequency of 1, if there is one
-     * space available. Often these frequencies have to be taken as a
-     * guideline, and the actual probabilities will only be
-     * approximate. Consider three situations with frequencies of 1,
-     * 1, 100, competing for two spaces. The 100-frequency situation
-     * will be chosen almost every time, but for the other space, one
-     * of the 1-frequency situations must be chosen. So the actual
-     * probabilities will be roughly 50%, 50%, 100%. When selecting
-     * more than one result, frequencies can only be a guide.
-     *
-     * Before this function returns its result, it sorts the
-     * situations in increasing order of their displayOrder values.
-     */
-    System.prototype.getSituationIdChoices = function(listOfOrOneIdsOrTags,
-                                                      minChoices, maxChoices)
-    {
-        var datum;
-        var i;
-
-        // First check if we have a single string for the id or tag.
-        if ($.type(listOfOrOneIdsOrTags) == 'string') {
-            listOfOrOneIdsOrTags = [listOfOrOneIdsOrTags];
-        }
-
-        // First we build a list of all candidate ids.
-        var allIds = {};
-        for (i = 0; i < listOfOrOneIdsOrTags.length; ++i) {
-            var tagOrId = listOfOrOneIdsOrTags[i];
-            if (tagOrId.substr(0, 1) == '#') {
-                var ids = getSituationIdsWithTag(tagOrId.substr(1));
-                for (var j = 0; j < ids.length; ++j) {
-                    allIds[ids[j]] = true;
-                }
-            } else {
-                allIds[tagOrId] = true;
-            }
-        }
-
-        // Filter out anything that can't be viewed right now.
-        var currentSituation = getCurrentSituation();
-        var viewableSituationData = [];
-        for (var situationId in allIds) {
-            var situation = game.situations[situationId];
-            assert(situation, "unknown_situation".l({id:situationId}));
-
-            if (situation.canView(character, system, currentSituation)) {
-                // While we're here, get the selection data.
-                var viewableSituationDatum =
-                    situation.choiceData(character, system, currentSituation);
-                viewableSituationDatum.id = situationId;
-                viewableSituationData.push(viewableSituationDatum);
-            }
-        }
-
-        // Then we sort in descending priority order.
-        viewableSituationData.sort(function(a, b) {
-            return b.priority - a.priority;
-        });
-
-        var committed = [];
-        var candidatesAtLastPriority = [];
-        var lastPriority;
-        // In descending priority order.
-        for (i = 0; i < viewableSituationData.length; ++i) {
-            datum = viewableSituationData[i];
-            if (datum.priority != lastPriority) {
-                if (lastPriority !== undefined) {
-                    // We've dropped a priority group, see if we have enough
-                    // situations so far, and stop if we do.
-                    if (minChoices === undefined || i >= minChoices) break;
-                }
-                // Continue to acccumulate more options.
-                committed.push.apply(committed, candidatesAtLastPriority);
-                candidatesAtLastPriority = [];
-                lastPriority = datum.priority;
-            }
-            candidatesAtLastPriority.push(datum);
-        }
-
-        // So the values in committed we're committed to, because without
-        // them we wouldn't hit our minimum. But those in
-        // candidatesAtLastPriority might take us over our maximum, so
-        // figure out how many we should choose.
-        var totalChoices = committed.length + candidatesAtLastPriority.length;
-        if (maxChoices === undefined || maxChoices >= totalChoices) {
-            // We can use all the choices.
-            committed.push.apply(committed, candidatesAtLastPriority);
-        } else if (maxChoices >= committed.length) {
-            // We can only use the commited ones.
-            // NO-OP
-        } else {
-            // We have to sample the candidates, using their relative frequency.
-            var candidatesToInclude = maxChoices - committed.length;
-            for (i = 0; i < candidatesAtLastPriority.length; ++i) {
-                datum = candidatesAtLastPriority[i];
-                datum._frequencyValue = this.rnd.random() / datum.frequency;
-            }
-            candidatesAtLastPriority.sort(function(a, b) {
-                return a._frequencyValue - b._frequencyValue;
-            });
-            var chosen = candidatesAtLastPriority.slice(0, candidatesToInclude);
-            committed.push.apply(committed, chosen);
-        }
-
-        // Now sort in ascending display order.
-        committed.sort(function(a, b) {
-            return a.displayOrder - b.displayOrder;
-        });
-
-        // And return as a list of ids only.
-        var result = [];
-        for (i = 0; i < committed.length; ++i) {
-            result.push(committed[i].id);
-        }
-        return result;
     };
 
     /* Call this to change the character text: the text in the right
@@ -913,18 +484,15 @@
         if (!interactive) return;
 
         // Work out how to display the values.
-        var newDisplay;
+        var newDisplay = newValue.toString();
         var qualityDefinition = game.qualities[quality];
         if (qualityDefinition) {
             newDisplay = qualityDefinition.format(character, newValue);
-        } else {
-            // We shouldn't display qualities that have no definition.
-            return;
         }
 
         // Add the data block, if we need it.
         var qualityBlock = $("#q_"+quality);
-        if (qualityBlock.length <= 0) {
+        if (qualityBlock.size() <= 0) {
             if (newDisplay === null) return;
             qualityBlock = addQualityBlock(quality).hide().fadeIn(500);
         } else {
@@ -937,7 +505,7 @@
                 // it is the last quality in the group.
                 var toRemove = null;
                 var groupBlock = qualityBlock.parents('.quality_group');
-                if (groupBlock.find('.quality').length <= 1) {
+                if (groupBlock.find('.quality').size() <= 1) {
                     toRemove = groupBlock;
                 } else {
                     toRemove = qualityBlock;
@@ -1067,21 +635,18 @@
         $('#content').append(bar);
 
         // Start the animation
-        var that = this;
         setTimeout(function() {
             widthElement.animate(
-                {'width': myOpts.to*totalWidth}, that.options.progress_bar_speed,
+                {'width': myOpts.to*totalWidth}, 1000,
                 function() {
                     // After a moment to allow the bar to be read, we can
                     // remove it.
                     setTimeout(function() {
                         if (mobile) {
-                            bar.fadeOut(that.options.mobile_hide_speed, function() {
-                              $(this).remove();
-                            });
+                            bar.fadeOut(1500, function() {$(this).remove();});
                         } else {
-                            bar.animate({opacity: 0}, that.options.fade_speed).
-                                slideUp(that.options.slide_up_speed, function() {
+                            bar.animate({opacity: 0}, 1500).
+                                slideUp(500, function() {
                                     $(this).remove();
                                 });
                         }
@@ -1173,11 +738,11 @@
          * function(character, system, oldSituationId, newSituationId);
          */
         enter: null,
-
-        /* Hook for when the situation has already been carried out
-         * and printed. The signature is:
-         *
-         * function(character, system, oldSituationId, newSituationId);
+        
+        /* Hook for when the situation has already been carried out and printed.
+         * The signature is
+         * 
+         * function( character, system, oldSituationId, newSituationId );
          */
         afterEnter: null,
 
@@ -1255,7 +820,7 @@
 
     /* The stack of links, resulting from the last action, still be to
      * resolved. */
-    var linkStack = null;
+    var linkStack = null
 
     // -----------------------------------------------------------------------
     // Utility Functions
@@ -1268,67 +833,6 @@
             return null;
         }
     };
-
-    var parse = function(str) {
-        if (str === undefined) {
-            return str;
-        } else {
-            return parseFloat(str);
-        }
-    };
-
-    var parseList = function(str, canBeUndefined) {
-        if (str === undefined) {
-            if (canBeUndefined) {
-                return undefined;
-            } else {
-                return [];
-            }
-        } else {
-            return str.split(/[ ,\t]+/);
-        }
-    };
-
-    var parseFn = function(str) {
-        if (str === undefined) {
-            return str;
-        } else {
-            var fstr = "(function(character, system, situation) {\n" +
-                str + "\n})";
-            var fn = eval(fstr);
-            return fn;
-        }
-    };
-
-    var loadHTMLSituations = function() {
-        var $htmlSituations = $("div.situation");
-        $htmlSituations.each(function() {
-            var $situation = $(this);
-            var id = $situation.attr("id");
-            assert(game.situations[id] === undefined,
-                   "existing_situation".l({id:id}));
-
-            var content = $situation.html();
-            var opts = {
-                // Situation content
-                optionText: $situation.attr("data-option-text"),
-                canView: parseFn($situation.attr("data-can-view")),
-                canChoose: parseFn($situation.attr("data-can-choose")),
-                priority: parse($situation.attr("data-priority")),
-                frequency: parse($situation.attr("data-frequency")),
-                displayOrder: parse($situation.attr("data-display-order")),
-                tags: parseList($situation.attr("data-tags"), false),
-                // Simple Situation content.
-                heading: $situation.attr("data-heading"),
-                choices: parseList($situation.attr("data-choices"), true),
-                minChoices: parse($situation.attr("data-min-choices")),
-                maxChoices: parse($situation.attr("data-max-choices"))
-            };
-
-            game.situations[id] = new SimpleSituation(content, opts);
-        });
-    };
-
 
     /* Outputs regular content to the page. Used by write and
      * writeBefore, the last two arguments control what jQuery methods
@@ -1352,26 +856,19 @@
          * visible.) */
         var nextel = output.last().next();
         var scrollPoint;
-        if (!nextel.length) {
+        if (!nextel.length)
             scrollPoint = $("#content").height() + $("#title").height() + 60;
-        } else {
+        else
             scrollPoint = nextel.offset().top - $(window).height();
-        }
         if (scrollPoint > output.offset().top)
             scrollPoint = output.offset().top;
-        /* We add a fifth of the window height to this point, so that the
-         * element won't be placed too close to the bottom edge of the
-         * viewport. If we overshoot the viewport, we'll just go down to
-         * the bottom - desirable behaviour anyway, especially if we are
-         * already there. */
-        scrollStack[scrollStack.length-1] =
-            (scrollPoint + ($(window).height() * 0.2));
+        scrollStack[scrollStack.length-1] = scrollPoint;
     };
 
     /* Gets the unique id used to identify saved games. */
     var getSaveId = function() {
         return 'undum_'+game.id+"_"+game.version;
-    };
+    }
 
     /* Adds the quality blocks to the character tools. */
     var showQualities = function() {
@@ -1384,7 +881,7 @@
     /* Fades in and out a highlight on the given element. */
     var showHighlight = function(domElement) {
         var highlight = domElement.find(".highlight");
-        if (highlight.length <= 0) {
+        if (highlight.size() <= 0) {
             highlight = $('<div>').addClass('highlight');
             domElement.append(highlight);
         }
@@ -1401,7 +898,7 @@
     var insertAtCorrectPosition = function(parent, newItem) {
         var newPriority = newItem.attr('data-priority');
         var children = parent.children();
-        for (var i = 0; i < children.length; i++) {
+        for (var i = 0; i < children.size(); i++) {
             var child = children.eq(i);
             if (newPriority < child.attr('data-priority')) {
                 child.before(newItem);
@@ -1443,17 +940,14 @@
     var addQualityBlock = function(qualityId) {
         // Make sure we want to display this quality.
         var qualityDefinition = game.qualities[qualityId];
-        if (!qualityDefinition) {
-          throw new Error("Can't display a quality that hasn't been defined: "+
-                          qualityId);
-        }
+        if (!qualityDefinition) return null;
 
         // Work out how the value should be displayed.
         var name = qualityDefinition.title;
         var val = qualityDefinition.format(
             character, character.qualities[qualityId]
         );
-        if (val === null) return null;
+        if (val === null) return;
 
         // Create the quality output.
         var qualityBlock = $("#ui_library #quality").clone();
@@ -1474,7 +968,7 @@
             var group = game.qualityGroups[groupId];
             assert(group, "no_group_definition".l({id: groupId}));
             groupBlock = $("#g_"+groupId);
-            if (groupBlock.length <= 0) {
+            if (groupBlock.size() <= 0) {
                 groupBlock = addGroupBlock(groupId);
             }
         }
@@ -1498,7 +992,7 @@
     var scrollStack = [];
     var pendingFirstWrite = false;
     var startOutputTransaction = function() {
-        if (scrollStack.length === 0) {
+        if (scrollStack.length == 0) {
             pendingFirstWrite = true;
         }
         // The default is "all the way down".
@@ -1516,7 +1010,7 @@
     };
     var endOutputTransaction = function() {
         var scrollPoint = scrollStack.pop();
-        if (scrollStack.length === 0 && scrollPoint !== null) {
+        if (scrollStack.length == 0 && scrollPoint != null) {
             if (interactive && !mobile) {
                 $("body, html").animate({scrollTop: scrollPoint}, 500);
             }
@@ -1526,7 +1020,7 @@
 
     /* This gets called when a link needs to be followed, regardless
      * of whether it was user action that initiated it. */
-    var linkRe = /^([a-z0-9_-]+|\.)(\/([0-9a-z_-]+))?$/;
+    var linkRe = /^([-a-z0-9]+|\.)(\/([-0-9a-z]+))?$/;
     var processLink = function(code) {
         // Check if we should do this now, or if processing is already
         // underway.
@@ -1577,7 +1071,9 @@
             }
         } else {
             // We should have an action if we have no situation change.
-            assert(action, "link_no_action".l());
+            assert(
+                action, "link_no_action".l()
+            );
         }
 
         // Carry out the action
@@ -1631,31 +1127,26 @@
                 game.exit(character, system, oldSituationId, newSituationId);
             }
 
-            var contentToHide = $('#content .transient, #content ul.options');
-            contentToHide.add($("#content a").filter(function(){
-                return $(this).attr("href").match(/[?&]transient[=&]?/);
-            }));
-            if (interactive) {
-                if (mobile) {
-                  contentToHide.fadeOut(system.options.mobile_hide_speed);
-                } else {
-				        // Get fate out speed of options, and slide up speed variables.
-                  contentToHide.
-                    animate({opacity: 0}, system.options.fade_speed).
-                    slideUp(system.options.slide_up_speed, function() {
-                      $(this).remove();
-                    });
-                }
-            } else {
-                contentToHide.remove();
-            }
             //  Remove links and transient sections.
             $('#content a').each(function(index, element) {
                 var a = $(element);
-                if (a.hasClass('sticky') || a.attr("href").match(/[?&]sticky[=&]?/))
-                    return;
+                if (a.hasClass('sticky')) return;
                 a.replaceWith($("<span>").addClass("ex_link").html(a.html()));
             });
+            if (interactive) {
+                if (mobile) {
+                    $('#content .transient, #content ul.options').
+                        fadeOut(2000);
+                } else {
+                    $('#content .transient, #content ul.options').
+                        animate({opacity: 0}, 1500).
+                        slideUp(500, function() {
+                            $(this).remove();
+                        });
+                }
+            } else {
+                $('#content .transient, #content ul.options').remove();
+            }
         }
 
         // Move the character.
@@ -1666,10 +1157,10 @@
             game.enter(character, system, oldSituationId, newSituationId);
         }
         newSituation.enter(character, system, oldSituationId);
-
+        
         // additional hook for when the situation text has already been printed
-        if (game.afterEnter) {
-            game.afterEnter(character, system, oldSituationId, newSituationId);
+        if( game.afterEnter ) {
+            game.afterEnter( character, system, oldSituationId, newSituationId );
         }
     };
 
@@ -1681,18 +1172,16 @@
         // Wire up the links for regular <a> tags.
         output.find("a").each(function(index, element) {
             var a = $(element);
-            var href = a.attr('href');
-            if (!a.hasClass("raw")|| href.match(/[?&]raw[=&]?/)) {
+            if (!a.hasClass("raw")) {
+                var href = a.attr('href');
                 if (href.match(linkRe)) {
                     a.click(function(event) {
                         event.preventDefault();
 
                         // If we're a once-click, remove all matching
                         // links.
-                        if (system.options.all_links_once === false
-                          || (system.options.all_links_once === true
-                          && (a.hasClass("once") || href.match(/[?&]once[=&]?/)))) {
-                          system.clearLinks(href);
+                        if (a.hasClass("once")) {
+                            system.clearLinks(href);
                         }
 
                         processClick(href);
@@ -1707,9 +1196,10 @@
         return output;
     };
 
-    /* Erases the character in local storage. This is permanent! */
+    /* Erases the character in local storage. This is permanent! TODO:
+     * Perhaps give a warning. */
     var doErase = function(force) {
-        var saveId = getSaveId();
+        var saveId = getSaveId()
         if (localStorage[saveId]) {
             if (force || confirm("erase_message".l())) {
                 delete localStorage[saveId];
@@ -1719,22 +1209,6 @@
         }
     };
 
-    /* Find and return a list of ids for all situations with the given tag. */
-    var getSituationIdsWithTag = function(tag) {
-        var result = [];
-        for (var situationId in game.situations) {
-            var situation = game.situations[situationId];
-
-            for (var i = 0; i < situation.tags.length; ++i) {
-                if (situation.tags[i] == tag) {
-                    result.push(situationId);
-                    break;
-                }
-            }
-        }
-        return result;
-    };
-
     /* Set up the screen from scratch to reflect the current game
      * state. */
     var initGameDisplay = function() {
@@ -1742,7 +1216,9 @@
         $("#content").empty();
 
         var situation = getCurrentSituation();
-        assert(situation, "no_current_situation".l());
+        assert(
+            situation, "no_current_situation".l()
+        );
 
         showQualities();
     };
@@ -1837,7 +1313,7 @@
         QualityGroup: QualityGroup,
 
         game: game,
-
+        
         isInteractive: function() { return interactive; },
 
         // The undum set of translated strings.
@@ -1846,11 +1322,8 @@
 
     /* Set up the game when everything is loaded. */
     $(function() {
-        // Compile additional situations from HTML
-        loadHTMLSituations();
-
         // Handle storage.
-        if (hasLocalStorage()) {
+        if (hasLocalStorage) {
             var erase = $("#erase").click(function() {
                 doErase();
             });
@@ -1871,7 +1344,7 @@
                 startGame();
             }
         } else {
-            $(".buttons").html("<p>"+"no_local_storage".l()+"</p>");
+            $("#buttons").html("<p>"+"no_local_storage".l()+"</p>");
             startGame();
         }
 
@@ -1893,7 +1366,7 @@
 
         // Any point that an option list appears, its options are its
         // first links.
-        $("body").on('click', "ul.options li, #menu li", function(event) {
+        $("ul.options li, #menu li").live('click', function(event) {
             // Make option clicks pass through to their first link.
             var link = $("a", this);
             if (link.length > 0) {
@@ -1910,7 +1383,7 @@
             if (wasMobile != mobile) {
                 var showing = !$(".click_message").is(":visible");
                 if (mobile) {
-                    var menu = $("#menu");
+                    var menu = $("#menu")
                     if (showing) {
                         $("#toolbar").show();
                         menu.show();
@@ -1998,8 +1471,8 @@
         /* Compiles a list of fallback languages to try if the given code
          * doesn't have the message we need. Caches it for future use. */
         var getCodesToTry = function(languageCode) {
-            var codeArray = codesToTry[languageCode];
-            if (codeArray) return codeArray;
+            var codeArray;
+            if (codeArray = codesToTry[languageCode]) return codeArray;
 
             codeArray = [];
             if (languageCode in undum.language) {
@@ -2026,8 +1499,7 @@
             var languageCodes = getCodesToTry(languageCode);
             for (var i = 0; i < languageCodes.length; i++) {
                 thisCode = languageCodes[i];
-                localized = lookup(thisCode, message);
-                if (localized) return localized;
+                if (localized = lookup(thisCode, message)) return localized;
             }
             return message;
         };
@@ -2035,7 +1507,7 @@
         // API
         String.prototype.l = function(args) {
             // Get lang attribute from html tag.
-            var lang = $("html").attr("lang") || "";
+            var lang = $("html").attr("lang");
 
             // Find the localized form.
             var localized = localize(lang, this);
@@ -2184,7 +1656,7 @@
      * error, it will be overridden in each Random object when the
      * seed has been correctly configured. */
     Random.prototype.random = function() {
-        throw {
+        throw new {
             name:"RandomError",
             message: "random_error".l()
         };
@@ -2249,7 +1721,6 @@
                 break;
             case '%':
                 sides = 100;
-                break;
             default:
                 sides = parseInt(match[2], 10);
                 break;
@@ -2271,12 +1742,10 @@
         superb: "superb",
         yes: "yes",
         no: "no",
-        choice: "Choice {number}",
         no_group_definition: "Couldn't find a group definition for {id}.",
         link_not_valid: "The link '{link}' doesn't appear to be valid.",
         link_no_action: "A link with a situation of '.', must have an action.",
         unknown_situation: "You can't move to an unknown situation: {id}.",
-        existing_situation: "You can't override situation {id} in HTML.",
         erase_message: "This will permanently delete this character and immediately return you to the start of the game. Are you sure?",
         no_current_situation: "I can't display, because we don't have a current situation.",
         no_local_storage: "No local storage available.",
@@ -2288,4 +1757,4 @@
     // preferred language.
     undum.language[""] = en;
     undum.language["en"] = en;
-}(jQuery));
+})();
