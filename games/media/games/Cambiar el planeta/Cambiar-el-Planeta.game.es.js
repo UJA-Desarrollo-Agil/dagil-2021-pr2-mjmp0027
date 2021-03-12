@@ -40,6 +40,7 @@ undum.game.situations = {
 		y te vas al <a href='patiotrasero'>patio trasero</a> a usar la máquina.</p>"
 		,
 				{
+				
             actions: {
                 'manipulador': function(character, system, action) {
 															system.setQuality( "manipulador", true );
@@ -54,7 +55,10 @@ undum.game.situations = {
 																	system.setQuality( "llaves", true );
 																	system.setCharacterText( "<p>Cuidado porque sin ellas no podrás entrar de nuevo.</p>" );
 																}
-					  }
+					  },
+					  enter: function( character, system, from ){
+					$('body').css('background-image', 'url(https://catalogodemuebles.es/2333-thickbox_default/habitacion-juvenil-senior-en-novotex-aluminio-calabaza-y-fresno-con-tirador-unero-zaragoza-.jpg)')
+							}
 				}
 		),
 		comprarfiesta: new undum.SimpleSituation(
@@ -107,7 +111,10 @@ undum.game.situations = {
 																	system.setCharacterText( "<p>Con esto podrás comprar todo lo que quieras. \
 																														Sí eres rico asi que no escatimes.</p>" );
 																},
-					  }
+					  },
+					  enter: function( character, system, from ){
+					$('body').css('background-image', 'url(https://imagenes.20minutos.es/files/image_656_370/uploads/imagenes/2020/06/26/interior-de-uno-de-los-66-supermercados-de-mercadona-en-cyl-1.jpeg)')
+							}
 				}
 		),
 		casanollavenop: new undum.SimpleSituation(
@@ -115,10 +122,11 @@ undum.game.situations = {
 			<p>Te encuentras ya para entrar en casa y te propones a buscar las llaves para entrar. </p>",
 			{
 				enter: function( character, system, from ) {
+					$('body').css('background-image', 'url(https://espaciohogar.com/wp-content/uploads/2020/10/facahdas-modernas-2021.jpg)')
 					if( character.qualities.llaves ) {
 						system.doLink( "casaconllavenop" );
 					} else {
-            $('body').css('background-image', 'url(https://bangbranding.com/blog/wp-content/uploads/2016/11/350x500_destacada-1.jpg')
+            $('body').css('background-image', 'url(https://espaciohogar.com/wp-content/uploads/2020/10/facahdas-modernas-2021.jpg')
 						system.write( "<p>y descubres que al salir de tu casa olvidaste las llaves \
 						por lo que recuerdas la llave que hay escondida en el <a href='patiotraserollavenop'>patio trasero</a>. </p>"
 						
@@ -132,14 +140,16 @@ undum.game.situations = {
 			"<h1>Patio trasero</h1> \
 			<p> Buscando en el árbol en el agujero trasero <a href='./llaves' class='once'>coges la llave</a> y vuelves a <a href='casanollavenop'>la puerta</a> para entrar.</p>",
 				{
-            actions: {
 				enter: function( character, system, from ){
 					$('body').css('background-image', 'url(https://decortips.com/es/_next/image?url=https%3A%2F%2Fdecortips.com%2Fes%2Fwp-content%2Fuploads%2F2019%2F04%2Ftener-jardin-bonito.jpg&w=1920&q=75)')
-				},
+							},
+            actions: {
+				
 				'llaves': function( character, system, action) {
 																	system.setQuality( "llaves", true );
 																	system.setCharacterText( "<p>Cuidado porque sin ellas no podrás entrar de nuevo.</p>" );
 																}
+				
 					  }
 				}
 		),
@@ -148,25 +158,40 @@ undum.game.situations = {
 			"<h1>Patio trasero</h1> \
 			<p> Buscando en el árbol en el agujero trasero <a href='./llaves' class='once'>coges la llave</a> y vuelves a <a href='casanollavesip'>la puerta</a> para entrar.</p>",
 				{
+				enter: function( character, system, from ){
+					$('body').css('background-image', 'url(https://decortips.com/es/_next/image?url=https%3A%2F%2Fdecortips.com%2Fes%2Fwp-content%2Fuploads%2F2019%2F04%2Ftener-jardin-bonito.jpg&w=1920&q=75)')
+				},
             actions: {
+				
 				'llaves': function( character, system, action) {
 																	system.setQuality( "llaves", true );
 																	system.setCharacterText( "<p>Cuidado porque sin ellas no podrás entrar de nuevo.</p>" );
 																}
 					  }
 				}
+				
 		),
 		casaconllavenop: new undum.SimpleSituation(
 			"<h1>Casa</h1>\
 			<p>Dejas todo lo comprado pensando en la fiesta y te olvidas de la idea de salvar el planeta. </p> \
-			<h1>Fin de la historia.</h1>"
+			<h1>Fin de la historia.</h1>",
+				{
+				enter: function( character, system, from ){
+					$('body').css('background-image', 'url(https://www.kamin-klaus.com/218-thickbox_default/chimenea-electrica-182-cm-luxury-kamin-72-negro.jpg)')
+					}
+				}
 		),
 
 		casaconllavesip: new undum.SimpleSituation(
 			"<h1>Casa</h1>\
 			<p>Haces arder al pangolin(si es que cogiste el pangolin) para que todo desaparezca y te asomas al ventana viendo todo en la \
 			normalidad y la gente sin mascarilla como si nada hubiera pasado. </p>\
-			<h1>Fin de la historia.</h1>"
+			<h1>Fin de la historia.</h1>",
+				{
+				enter: function( character, system, from ){
+					$('body').css('background-image', 'url(https://www.kamin-klaus.com/218-thickbox_default/chimenea-electrica-182-cm-luxury-kamin-72-negro.jpg)')
+					}
+				}
 		),
 
 		patiotraseromaquina: new undum.SimpleSituation(
@@ -178,11 +203,11 @@ undum.game.situations = {
 			<p>Una vez en el patio te dispones a viajar al pasado al momento justo en que el maldito chino se comió el pangolín. </p>",
 			{
 				enter: function( character, system, from ) {
-					$('body').css('background-image', 'url(https://decortips.com/es/_next/image?url=https%3A%2F%2Fdecortips.com%2Fes%2Fwp-content%2Fuploads%2F2019%2F04%2Ftener-jardin-bonito.jpg&w=1920&q=75')
+					$('body').css('background-image', 'url(https://decortips.com/es/_next/image?url=https%3A%2F%2Fdecortips.com%2Fes%2Fwp-content%2Fuploads%2F2019%2F04%2Ftener-jardin-bonito.jpg&w=1920&q=75)')
 					if( character.qualities.timemachine ) {
 						system.doLink( "patiotraseromaquina" );
 					} else {
-            $('body').css('background-image', 'url(https://decortips.com/es/_next/image?url=https%3A%2F%2Fdecortips.com%2Fes%2Fwp-content%2Fuploads%2F2019%2F04%2Ftener-jardin-bonito.jpg&w=1920&q=75')
+					$('body').css('background-image', 'url(https://decortips.com/es/_next/image?url=https%3A%2F%2Fdecortips.com%2Fes%2Fwp-content%2Fuploads%2F2019%2F04%2Ftener-jardin-bonito.jpg&w=1920&q=75)')
 						system.write( "<p>y descubres que no has cogido la maquina del tiempo para viajar al pasado \
 										por lo que decides <a href='habitacion'>volver a por ella</a>. </p>"
 						
@@ -196,7 +221,12 @@ undum.game.situations = {
 			"<h1>Marzo de 2020</h1>\
 			<p> Te encuentras en china en marzo en el año 2020 momentos antes de la consumición del pangolín.</p> \
 			<p> De repente, te quedas pensativo y sorprendido al ver a toda la multitud sin mascarilla y recuerdas cuando todo antes estaba así \
-			y te decides a <a href='restaurante'>entrar</a> al restaurante chino y evitar que ocurra todo. </p>"
+			y te decides a <a href='restaurante'>entrar</a> al restaurante chino y evitar que ocurra todo. </p>",
+				{
+				enter: function( character, system, from ){
+					$('body').css('background-image', 'url(https://previews.123rf.com/images/bartekchiny/bartekchiny1002/bartekchiny100200047/6889334-china-shenzhen-el-10-de-febrero-china-gente-b%C3%BAsquedas-coloridas-decoraciones-para-el-a%C3%B1o-nuevo-chino-el-10-.jpg)')
+					}
+				}
 		),
 
 		restaurante: new undum.SimpleSituation(
@@ -210,7 +240,12 @@ undum.game.situations = {
 																	system.setCharacterText( "<p>Ya tienes el pangolin causante de la tragedia.\
 																										Cuidado no te lo comas o lo liaras todo de nuevo.</p>" );
 																}
-					  }
+					  },
+					  
+				enter: function( character, system, from ){
+					$('body').css('background-image', 'url(http://www.gzddd.com/uploads/allimg/191009/1-1910091543123E.jpg)')
+					}
+				
 				}
 		),
 
@@ -219,13 +254,13 @@ undum.game.situations = {
 			<p>Te encuentras ya para entrar en casa y te propones a buscar las llaves para entrar. </p>",
 			{
 				enter: function( character, system, from ) {
+				$('body').css('background-image', 'url(https://espaciohogar.com/wp-content/uploads/2020/10/facahdas-modernas-2021.jpg)')
 					if( character.qualities.llaves ) {
 						system.doLink( "casaconllavesip" );
 					} else {
-            $('body').css('background-image', 'url(https://bangbranding.com/blog/wp-content/uploads/2016/11/350x500_destacada-1.jpg')
+            $('body').css('background-image', 'url(https://espaciohogar.com/wp-content/uploads/2020/10/facahdas-modernas-2021.jpg')
 						system.write( "<p>y descubres que al salir de tu casa olvidaste las llaves \
 						por lo que recuerdas la llave que hay escondida en el <a href='patiotraserollavesip'>patio trasero</a>. </p>"
-						
 				);
 					}
 				}
