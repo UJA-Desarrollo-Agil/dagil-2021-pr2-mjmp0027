@@ -1,11 +1,11 @@
-## Descripci髇
+## Descripci贸n
 
-En este juego tendr醩 la opci髇 de salvar el planeta de la pandemia
-que a鷑 lo asola, te encuentras en 2050 y tendr醩 la opci髇 de viajar
-al pasado para arreglarlo todo o la opci髇 de pasar de salvar el planeta
-y seguir con tu vida yendote de fiesta, tendr醩 distintas opciones y
-distintos objetos que podr醩 coger o no, algunos pueden cambiar un poco 
-el juego y otros son meramente interacci髇, es entretenido y espero que 
+En este juego tendr谩s la opci贸n de salvar el planeta de la pandemia
+que a煤n lo asola, te encuentras en 2050 y tendr谩s la opci贸n de viajar
+al pasado para arreglarlo todo o la opci贸n de pasar de salvar el planeta
+y seguir con tu vida yendote de fiesta, tendr谩s distintas opciones y
+distintos objetos que podr谩s coger o no, algunos pueden cambiar un poco 
+el juego y otros son meramente interacci贸n, es entretenido y espero que 
 disfrute.
 
 
@@ -25,12 +25,17 @@ https://trello.com/b/d8KwAFFz/pr%C3%A1ctica-2
 3. Open games/Cambiar el planeta.html in your browser, and play.
 
 
-Reference documentation, including full API details, is at
-[http://idmillington.github.io/undum/](http://idmillington.github.io/undum/),
-and is also included in the repository.
+##Capturas de pantalla!
 
-The source code for all the files is also heavily commented, so if you
-get stuck, go in and read it.
+Captura de pantalla de Trello con las tareas
+[Captura1](https://user-images.githubusercontent.com/66868520/111026855-05a32d80-83ed-11eb-843b-2cccbff03a8d.JPG)
+
+Captura de pantalla de Telegram enlazado con GitHub (no he recibido ninguna notificaci贸n de Telegram, creo que no funciona bien) 
+![Captura2](https://user-images.githubusercontent.com/66868520/111026860-08058780-83ed-11eb-9100-8ab7e25971d2.JPG)
+
+Captura de pantalla de Telegram enlazado con Trello
+![Captura3](https://user-images.githubusercontent.com/66868520/111026863-0936b480-83ed-11eb-9890-a2fdfc557f53.JPG)
+
 
 
 
