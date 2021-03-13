@@ -25,7 +25,7 @@ https://trello.com/b/d8KwAFFz/pr%C3%A1ctica-2
 3. Open games/Cambiar el planeta.html in your browser, and play.
 
 
-##Capturas de pantalla!
+## Capturas de pantalla
 
 Captura de pantalla de Trello con las tareas
 [Captura1](https://user-images.githubusercontent.com/66868520/111026855-05a32d80-83ed-11eb-843b-2cccbff03a8d.JPG)
