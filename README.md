@@ -31,10 +31,12 @@ Captura de pantalla de Trello con las tareas
 [Captura1](https://user-images.githubusercontent.com/66868520/111026855-05a32d80-83ed-11eb-843b-2cccbff03a8d.JPG)
 
 Captura de pantalla de Telegram enlazado con GitHub (no he recibido ninguna notificación de Telegram, creo que no funciona bien) 
-![Captura2](https://user-images.githubusercontent.com/66868520/111026860-08058780-83ed-11eb-9100-8ab7e25971d2.JPG)
+
+[Captura2](https://user-images.githubusercontent.com/66868520/111026860-08058780-83ed-11eb-9100-8ab7e25971d2.JPG)
 
 Captura de pantalla de Telegram enlazado con Trello
-![Captura3](https://user-images.githubusercontent.com/66868520/111026863-0936b480-83ed-11eb-9890-a2fdfc557f53.JPG)
+
+[Captura3](https://user-images.githubusercontent.com/66868520/111026863-0936b480-83ed-11eb-9890-a2fdfc557f53.JPG)
 
 
 
